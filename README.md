@@ -53,6 +53,21 @@ java infra.Client "LIST_ALL_USERS // 219.205.65.84"
 java infra.Client "CREATE_ROOM" 
 java infra.Client "CREATE_ROOM // João Marcos" 
 ```
+
+*  Enviar mensagem 
+```sh 
+java infra.Client "SEND_MESSAGE // Message" 
+```
+
+*  Entrar em uma sala passando sempre o InetAddress da sala
+```sh 
+java infra.Client "JOIN_ROOM // 219.205.65.84" 
+```
+
+*  Sair de uma sala passando sempre o InetAddress da sala
+```sh 
+java infra.Client "EXIT_ROOM // 219.205.65.84" 
+```
  
  
 
