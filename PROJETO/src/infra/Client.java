@@ -13,6 +13,7 @@ import static utils.Utils.getFixedPort;
 
 public class Client {
     public static final Integer M_PORT = 6789;
+    public static final String HOST = "localhost";
 
     public static void main(String args[]) {
 
@@ -21,7 +22,7 @@ public class Client {
         int serverPort = getFixedPort();
 
         try {
-            s = new Socket(args[1], serverPort);
+            s = new Socket(HOST, serverPort);
             DataInputStream in = new DataInputStream(s.getInputStream());
             DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
@@ -31,24 +32,26 @@ public class Client {
 
             String receivedData = in.readUTF();
 
-            if ((args[0].equals("0") || args[0].toUpperCase().equals("MENU")) && !receivedData.isEmpty()) {
+            if (args[0].toUpperCase().contains("MENU") && !receivedData.isEmpty()) {
                 System.out.println(receivedData);
             }
 
-
-            if ((args[0].equals("1") || args[0].toUpperCase().equals("LIST_ALL_ROOMS")) && !receivedData.isEmpty()) {
+            if (args[0].toUpperCase().contains("LIST_ALL_ROOMS") && !receivedData.isEmpty()) {
                 System.out.println(receivedData);
             }
 
-            if ((args[0].equals("4") || args[0].toUpperCase().equals("JOIN_ROOM")) && !receivedData.isEmpty()) {
+            if (args[0].toUpperCase().contains("LIST_ALL_USERS") && !receivedData.isEmpty()) {
+                System.out.println(receivedData);
+            }
+
+            if (args[0].toUpperCase().contains("JOIN_ROOM") && !receivedData.isEmpty()) {
                 joinRoom(mSocket, receivedData);
             }
 
-            if ((args[0].equals("5") || args[0].toUpperCase().equals("CREATE_ROOM")) && !receivedData.isEmpty()) {
-                System.out.println(receivedData);
-                //createRoom(mSocket, receivedData);
+            if (args[0].toUpperCase().contains("CREATE_ROOM") && !receivedData.isEmpty()) {
+                createRoom(mSocket, receivedData);
             }
-            if ((args[0].equals("6") || args[0].toUpperCase().equals("EXIT_ROOM")) && !receivedData.isEmpty()) {
+            if ( args[0].toUpperCase().contains("EXIT_ROOM") && !receivedData.isEmpty()) {
                 leaveRoom(mSocket, receivedData);
             }
 
@@ -108,6 +111,6 @@ public class Client {
         Thread t = new Thread(new Multicast(mSocket, groupIp, M_PORT));
         t.start();
 
-        mSocket.joinGroup(groupIp);
+        mSocket.leaveGroup(groupIp);
     }
 }

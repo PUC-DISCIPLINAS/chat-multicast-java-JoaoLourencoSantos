@@ -11,4 +11,8 @@ public interface IDataUpdate {
     List<String> getRooms();
 
     Integer getLastRoom();
+
+    void addUserInRoom(String room, String user);
+
+    String getUsersInRoom(String room);
 }

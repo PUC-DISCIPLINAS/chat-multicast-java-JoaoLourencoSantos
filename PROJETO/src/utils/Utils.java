@@ -1,6 +1,8 @@
 package utils;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class Utils {
@@ -21,35 +23,37 @@ public abstract class Utils {
         return "228.5.6." + room;
     }
 
+    private static String[] getMessage(String message) {
+        return message.split("//"); // Para toda troca de mensagens com mais de um parametro é necessário passar com //
+    }
+
     public static String handleMessage(String clientMessage, IDataUpdate clientSocket) {
-        System.out.println(clientMessage);
+        System.out.println("Received  => " + clientMessage);
+        String[] messages = getMessage(clientMessage);
+        System.out.println("Particional messages  => " + Arrays.asList(messages).toString());
+
         if (clientMessage == null && clientMessage.isEmpty()) {
             return "Opps ... not is possible handle your message";
         }
 
         if (clientMessage.toUpperCase().equals("MENU")) {
-            System.out.println("QAQUI");
             return menu();
         }
 
-
-        if (clientMessage.toUpperCase().equals("LIST_ALL_ROOMS") || clientMessage.toUpperCase().equals(("1"))) {
+        if (clientMessage.toUpperCase().equals("LIST_ALL_ROOMS")) {
             return listRooms(clientSocket.getRooms());
         }
 
-        if (clientMessage.toUpperCase().equals("LIST_ALL_USERS") || clientMessage.toUpperCase().equals(("2"))) {
-            return listRooms(clientSocket.getRooms());
+        if (clientMessage.toUpperCase().contains("LIST_ALL_USERS")) {
+            String room = messages.length > 1 ? messages[1] : "";
+            return clientSocket.getUsersInRoom(room);
         }
 
-        if (clientMessage.toUpperCase().equals("SEND_MESSAGE") || clientMessage.toUpperCase().equals(("3"))) {
+        if (clientMessage.toUpperCase().equals("JOIN_ROOM")) {
             return "Yes you choose the first option!";
         }
 
-        if (clientMessage.toUpperCase().equals("JOIN_ROOM") || clientMessage.toUpperCase().equals(("4"))) {
-            return "Yes you choose the first option!";
-        }
-
-        if (clientMessage.toUpperCase().equals("CREATE_ROOM") || clientMessage.toUpperCase().equals(("5"))) {
+        if (clientMessage.toUpperCase().contains("CREATE_ROOM")) {
             clientSocket.updateLastRomm();
             Integer last = clientSocket.getLastRoom();
 
@@ -58,6 +62,9 @@ public abstract class Utils {
             String room = getRoom(last);
 
             clientSocket.updateRooms(room);
+
+            String userName = messages.length > 1 ? messages[1] : "Usuário não identificado";
+            clientSocket.addUserInRoom(room, userName);
 
             return room;
         }
@@ -88,5 +95,28 @@ public abstract class Utils {
         return "\n::::::::::::: Rooms \n " + rooms.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining("   ||  ", "{ ", " }"));
+    }
+
+    public static String listUsersInRoom(Map<String, List<String>> users, String room) {
+
+        String result = "";
+        if (room != null && !room.isEmpty() && !room.trim().isEmpty() && users.get(room.trim()) != null) {
+
+            return "\n::::::::::::: Room " + room + "\n" +
+                    users.get(room.trim()).stream().map(String::valueOf)
+                            .collect(Collectors.joining("   ||  ", "{ ", " }"));
+        }
+
+        result = "\n::::::::::::: Rooms \n";
+
+
+        for (Map.Entry<String, List<String>> value : users.entrySet()) {
+            result += value.getKey() + "  :: ";
+            result += value.getValue().stream().map(String::valueOf)
+                    .collect(Collectors.joining("   ||  ", "{ ", " }"));
+            result += "\n";
+        }
+
+        return result;
     }
 }
