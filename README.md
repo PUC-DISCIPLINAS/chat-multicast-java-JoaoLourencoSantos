@@ -13,6 +13,13 @@ Seguirão abaixo orientações do uso do projeto
 
 ## Utilização
 
+### Buildar o projeto 
+* Realizar o build do projeto para que a pasta bin/out seja criado
+ 
+```sh
+cd  /PROJETO  - Pasta onde está localizada o código
+```
+
 ### Execução do server 
 * PORTA = 4845
  
@@ -21,7 +28,7 @@ cd  /PROJETO/out/production/PROJETO
 java infra.Server 
 ```
 
-### Execução do Client
+### Execução do client
 * PORTA = 4845
 * PORTA MULTICAST = 6789
 
