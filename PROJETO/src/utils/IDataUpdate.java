@@ -15,4 +15,6 @@ public interface IDataUpdate {
     void addUserInRoom(String room, String user);
 
     String getUsersInRoom(String room);
+
+    void removeUserFromRoom(String room, String userName);
 }

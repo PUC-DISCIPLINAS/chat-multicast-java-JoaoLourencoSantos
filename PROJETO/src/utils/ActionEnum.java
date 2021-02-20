@@ -4,10 +4,9 @@ public enum ActionEnum {
     MENU("0", ""),
     LIST_ALL_ROOMS("1", ""),
     LIST_ALL_USERS("2", ""),
-    SEND_MESSAGE("3", ""),
-    JOIN_ROOM("4", ""),
-    CREATE_ROOM("5", ""),
-    EXIT_ROOM("6", "");
+    JOIN_ROOM("3", ""),
+    CREATE_ROOM("4", ""),
+    EXIT_ROOM("5", "");
 
 
     private String id;

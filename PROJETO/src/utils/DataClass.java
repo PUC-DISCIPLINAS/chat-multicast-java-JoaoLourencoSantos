@@ -51,4 +51,17 @@ public class DataClass implements IDataUpdate {
     public String getUsersInRoom(String room) {
         return Utils.listUsersInRoom(users, room);
     }
+
+    @Override
+    public void removeUserFromRoom(String room, String userName) {
+        System.out.println("TEST > " + room + "  - " + userName);
+        List<String> current = users.get(room);
+        System.out.println("TEST > " + current.toString());
+        current.remove(userName);
+        System.out.println("TEST 2> " + current.toString());
+
+        System.out.println(userName);
+
+        users.get(room).remove(userName);
+    }
 }

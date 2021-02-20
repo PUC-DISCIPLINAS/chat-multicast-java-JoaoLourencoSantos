@@ -29,6 +29,7 @@ public class Multicast implements Runnable {
                 System.out.println(message);
             } catch (IOException e) {
                 System.out.println("Socket closed!");
+                break;
             }
         }
     }

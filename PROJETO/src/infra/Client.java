@@ -1,33 +1,38 @@
 package infra;
 
+import utils.Utils;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.MulticastSocket;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.net.*;
+import java.util.Scanner;
 
 import static utils.Utils.getFixedPort;
 
 public class Client {
     public static final Integer M_PORT = 6789;
     public static final String HOST = "localhost";
+    public static Scanner sc = new Scanner(System.in);
+
+    public static DataOutputStream out;
+    public static DataInputStream in;
 
     public static void main(String args[]) {
 
         Socket s = null;
-        MulticastSocket mSocket = null;
+        MulticastSocket multicastSocket = null;
         int serverPort = getFixedPort();
 
         try {
+
             s = new Socket(HOST, serverPort);
-            DataInputStream in = new DataInputStream(s.getInputStream());
-            DataOutputStream out = new DataOutputStream(s.getOutputStream());
+            in = new DataInputStream(s.getInputStream());
+            out = new DataOutputStream(s.getOutputStream());
 
             String message = args[0];
-            System.out.println("Sending data: " + message);
+            System.out.println("Enviando dados: " + message);
             out.writeUTF(message);
 
             String receivedData = in.readUTF();
@@ -45,15 +50,26 @@ public class Client {
             }
 
             if (args[0].toUpperCase().contains("JOIN_ROOM") && !receivedData.isEmpty()) {
-                joinRoom(mSocket, receivedData);
+
+                if (receivedData.equalsIgnoreCase("SUCCESS")) {
+                    String[] listMessage = Utils.getMessage(args[0]);
+
+                    String roomId = listMessage[1].trim();
+                    String userName = listMessage[2].trim();
+
+                    joinRoom(multicastSocket, roomId, userName);
+                }
             }
 
             if (args[0].toUpperCase().contains("CREATE_ROOM") && !receivedData.isEmpty()) {
-                createRoom(mSocket, receivedData);
+
+                String[] listMessage = Utils.getMessage(args[0]);
+
+
+                String userName = listMessage.length > 1 ? listMessage[1] : "Usuário não identificado";
+                createRoom(multicastSocket, receivedData, userName);
             }
-            if ( args[0].toUpperCase().contains("EXIT_ROOM") && !receivedData.isEmpty()) {
-                leaveRoom(mSocket, receivedData);
-            }
+
 
         } catch (UnknownHostException e) {
             System.out.println("Error on connect to server: " + e.getMessage());
@@ -72,45 +88,70 @@ public class Client {
     }
 
 
-    private static void createRoom(MulticastSocket mSocket, String received) throws IOException {
-        System.out.println("Received data: " + received);
-        InetAddress groupIp = InetAddress.getByName(received);
+    private static void createRoom(MulticastSocket multicastSocket, String groupId, String userName) throws IOException {
+        InetAddress groupIp = InetAddress.getByName(groupId);
 
-        System.out.println("Init multicast: " + received);
-        mSocket = new MulticastSocket(M_PORT);
-        mSocket.joinGroup(groupIp);
+        multicastSocket = new MulticastSocket(M_PORT);
+        multicastSocket.joinGroup(groupIp);
 
-        Thread t = new Thread(new Multicast(mSocket, groupIp, M_PORT));
+        Thread t = new Thread(new Multicast(multicastSocket, groupIp, M_PORT));
         t.start();
 
-        mSocket.joinGroup(groupIp);
+        initMesseger(multicastSocket, groupIp, userName);
+
     }
 
-    private static void joinRoom(MulticastSocket mSocket, String received) throws IOException {
-        System.out.println("Received data: " + received);
-        InetAddress groupIp = InetAddress.getByName(received);
+    private static void joinRoom(MulticastSocket multicastSocket, String groutId, String userName) throws IOException {
 
-        System.out.println("Init multicast: " + received);
-        mSocket = new MulticastSocket(M_PORT);
-        mSocket.joinGroup(groupIp);
+        try {
+            InetAddress groupIp = InetAddress.getByName(groutId);
 
-        Thread t = new Thread(new Multicast(mSocket, groupIp, M_PORT));
-        t.start();
+            multicastSocket = new MulticastSocket(M_PORT);
+            multicastSocket.joinGroup(groupIp);
 
-        mSocket.joinGroup(groupIp);
+            initMesseger(multicastSocket, groupIp, userName);
+        } catch (SocketException e) {
+            System.out.println("Socket: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("IO: " + e.getMessage());
+        } finally {
+            if (multicastSocket != null)
+                multicastSocket.close();
+        }
     }
 
-    private static void leaveRoom(MulticastSocket mSocket, String received) throws IOException {
-        System.out.println("Received data: " + received);
-        InetAddress groupIp = InetAddress.getByName(received);
+    private static void initMesseger(MulticastSocket multicastSocket, InetAddress groupIp, String userName) throws IOException {
 
-        System.out.println("Init multicast: " + received);
-        mSocket = new MulticastSocket(M_PORT);
-        mSocket.joinGroup(groupIp);
+        while (true) {
+            String message;
+            message = sc.nextLine();
 
-        Thread t = new Thread(new Multicast(mSocket, groupIp, M_PORT));
-        t.start();
+            if (message.equalsIgnoreCase("Exit")) {
 
-        mSocket.leaveGroup(groupIp);
+                Socket s = new Socket(HOST, getFixedPort());
+                in = new DataInputStream(s.getInputStream());
+                out = new DataOutputStream(s.getOutputStream());
+
+                System.out.println("Removendo " + userName + " do grupo de mensagens : " + groupIp.toString().split("/")[1]);
+
+                out.writeUTF("EXIT_ROOM // " + groupIp.toString().split("/")[1] + " // " + userName);
+
+                String receivedData = in.readUTF();
+
+                System.out.println(receivedData);
+
+                multicastSocket.leaveGroup(groupIp);
+                multicastSocket.close();
+                break;
+            }
+
+
+            System.out.println(groupIp.toString() + " - " + userName + " - " + M_PORT);
+
+            message = userName + ": " + message;
+            byte[] buffer = message.getBytes();
+            DatagramPacket datagram = new DatagramPacket(buffer, buffer.length, groupIp, M_PORT);
+            multicastSocket.send(datagram);
+        }
     }
 }

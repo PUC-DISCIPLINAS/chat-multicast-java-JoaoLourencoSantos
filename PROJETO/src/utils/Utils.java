@@ -23,7 +23,7 @@ public abstract class Utils {
         return "228.5.6." + room;
     }
 
-    private static String[] getMessage(String message) {
+    public static String[] getMessage(String message) {
         return message.split("//"); // Para toda troca de mensagens com mais de um parametro é necessário passar com //
     }
 
@@ -49,41 +49,70 @@ public abstract class Utils {
             return clientSocket.getUsersInRoom(room);
         }
 
-        if (clientMessage.toUpperCase().equals("JOIN_ROOM")) {
-            return "Yes you choose the first option!";
+        if (clientMessage.toUpperCase().contains("JOIN_ROOM")) {
+
+            if (messages.length < 3) {
+                return "ERROR_DATA";
+            }
+
+            String roomId = messages[1];
+            String userName = messages[2];
+
+            if (roomId == null || roomId.isEmpty() || userName == null || userName.isEmpty()) {
+                return "ERROR_DATA";
+            }
+
+            roomId = messages[1].trim();
+            userName = messages[2].trim();
+
+            System.out.println("DATA : " + userName + " - " + roomId);
+
+            clientSocket.addUserInRoom(roomId, userName);
+
+            return "SUCCESS";
         }
 
         if (clientMessage.toUpperCase().contains("CREATE_ROOM")) {
             clientSocket.updateLastRomm();
             Integer last = clientSocket.getLastRoom();
 
-            System.out.println("Last: " + last);
-
             String room = getRoom(last);
 
             clientSocket.updateRooms(room);
 
             String userName = messages.length > 1 ? messages[1] : "Usuário não identificado";
-            clientSocket.addUserInRoom(room, userName);
+            clientSocket.addUserInRoom(room.trim(), userName.trim());
 
             return room;
         }
 
-        if (clientMessage.toUpperCase().equals("EXIT_ROOM") || clientMessage.toUpperCase().equals(("6"))) {
-            return "Yes you choose the first option!";
+        if (clientMessage.toUpperCase().contains("EXIT_ROOM")) {
+            System.out.println("EXIT");
+
+
+            String roomId = messages[1].trim();
+            String userName = messages[2].trim();
+
+            clientSocket.removeUserFromRoom(roomId, userName);
+
+            try {
+                return "Sucesso ao remover o usuário da sala !";
+            } catch (Exception e) {
+                return "Erro ao remover o usuário da sala!";
+            }
         }
 
         return "Opps ... not was possible handle your message";
     }
 
     public static String menu() {
-        return "\n::::::::::::: Hello my friend! Welcome to the BOT! This is your options, create connection passing the 1° param with option what you need :::::::::::::\n" +
-                "::: 1 - List all Chat Room\n" +
-                "::: 2 - List all user from Chat Room\n" +
-                "::: 3 - Send message to the Chat Room\n" +
-                "::: 4 - Join to the Chat Room\n" +
-                "::: 5 - Create new Chat Room\n" +
-                "::: 6 - Exit from Chat Room\n";
+        return "\n::::::::::::: Olá meu amigo! Bem vindo ao CHATBOT! A baixo haverá suas opções, e no readme há mais detalhes sobre como utilizar  :::::::::::::\n" +
+                "::: 1 - Listar as salas de chat\n" +
+                "::: 2 - Listar os usuário de uma sala de chat ou de todas as salas\n" +
+                "::: 3 - Enviar mensagens entre as salas\n" +
+                "::: 4 - Se ajuntar à uma sala\n" +
+                "::: 5 - Criar uma nova sala\n" +
+                "::: 6 - Sair de uma sala\n";
     }
 
     public static String listRooms(List<String> rooms) {
