@@ -13,6 +13,13 @@ Seguirão abaixo orientações do uso do projeto
 
 ## Utilização
 
+### Buildar o projeto 
+* Realizar o build do projeto para que a pasta bin/out seja criado
+ 
+```sh
+cd  /PROJETO  - Pasta onde está localizada o código
+```
+
 ### Execução do server 
 * PORTA = 4845
  
