@@ -28,7 +28,7 @@ cd  /PROJETO/out/production/PROJETO
 java infra.Server 
 ```
 
-### Execução do Client
+### Execução do client
 * PORTA = 4845
 * PORTA MULTICAST = 6789
 
