@@ -109,6 +109,10 @@ public class Client {
             multicastSocket = new MulticastSocket(M_PORT);
             multicastSocket.joinGroup(groupIp);
 
+
+            Thread t = new Thread(new Multicast(multicastSocket, groupIp, M_PORT));
+            t.start();
+
             initMesseger(multicastSocket, groupIp, userName);
         } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());
@@ -144,9 +148,6 @@ public class Client {
                 multicastSocket.close();
                 break;
             }
-
-
-            System.out.println(groupIp.toString() + " - " + userName + " - " + M_PORT);
 
             message = userName + ": " + message;
             byte[] buffer = message.getBytes();
