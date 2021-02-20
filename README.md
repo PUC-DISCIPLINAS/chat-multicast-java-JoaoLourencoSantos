@@ -56,17 +56,17 @@ java infra.Client "CREATE_ROOM // João Marcos"
 
 *  Enviar mensagem 
 ```sh 
-java infra.Client "SEND_MESSAGE // Message" 
+O programa fica em loop requisitando a inserção de mensagens no console, sendo assim, toda mensagem digitada após a inicialização será automaticamente enviada.
 ```
 
-*  Entrar em uma sala passando sempre o InetAddress da sala
+*  Entrar em uma sala passando sempre o InetAddress da sala e o nome do usuário e automaticamente você será incluido no chat
 ```sh 
-java infra.Client "JOIN_ROOM // 219.205.65.84" 
+java infra.Client "JOIN_ROOM // 219.205.65.84 // João" 
 ```
 
-*  Sair de uma sala passando sempre o InetAddress da sala
+*  Sair de uma sala 
 ```sh 
-java infra.Client "EXIT_ROOM // 219.205.65.84" 
+O programa fica em loop requisitando a inserção de mensagens no console, sendo assim, para sair do programa é necessário digitar a palavra "Exit", para que o programa finalize a connexão e o socket seja encerrado.
 ```
  
  
